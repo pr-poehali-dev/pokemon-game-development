@@ -190,47 +190,79 @@ export default function WorldMap({ onStartBattle }: WorldMapProps) {
   };
 
   return (
-    <div className="h-full flex flex-col gap-4 p-4">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center neon-border-cyan border">
+    <div className="h-full flex flex-col gap-3 p-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="w-8 h-8 rounded-xl neon-border-cyan border flex items-center justify-center"
+          style={{ background: 'rgba(0,245,255,0.1)' }}>
           <Icon name="Map" size={16} className="text-cyan-400" />
         </div>
-        <h2 className="font-orbitron text-lg font-bold neon-text-cyan">КАРТА МИРА</h2>
-        <span className="text-xs font-rubik text-slate-400 ml-2">
-          {nearZone
-            ? <span className="text-yellow-400 animate-pulse">⚡ Рядом: {nearZone.name} — нажми Пробел или Войти</span>
-            : 'Стрелки / WASD или клик для движения'}
-        </span>
-        <span className="ml-auto text-xs font-rubik text-slate-400">6 зон · 18 покемонов</span>
+        <h2 className="font-orbitron text-lg font-black neon-text-cyan tracking-wider">КАРТА МИРА</h2>
+        {nearZone
+          ? <span className="chip chip-yellow animate-pulse ml-1">⚡ {nearZone.name} — Пробел/Войти</span>
+          : <span className="text-xs font-rubik text-slate-500 ml-1">WASD · стрелки · клик</span>
+        }
+        <div className="ml-auto flex items-center gap-2">
+          <span className="chip chip-cyan">6 зон</span>
+          <span className="chip chip-purple">18 покемонов</span>
+        </div>
       </div>
 
-      <div className="flex gap-4 flex-1 min-h-0">
+      <div className="flex gap-3 flex-1 min-h-0">
         {/* ═══ MAP AREA ═══ */}
         <div
           ref={mapRef}
-          className="relative flex-1 rounded-2xl overflow-hidden border border-slate-700 cursor-crosshair"
+          className="relative flex-1 rounded-2xl overflow-hidden cursor-crosshair scanlines"
           style={{
-            background: 'radial-gradient(ellipse at 30% 40%, rgba(0,245,255,0.05) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(191,95,255,0.05) 0%, transparent 50%), linear-gradient(135deg,#060d1a 0%,#0a1628 50%,#060d1a 100%)',
+            border: '1px solid rgba(0,245,255,0.15)',
+            background: `
+              radial-gradient(ellipse at 20% 25%, rgba(46,213,115,0.07) 0%, transparent 35%),
+              radial-gradient(ellipse at 65% 18%, rgba(0,180,216,0.07) 0%, transparent 30%),
+              radial-gradient(ellipse at 75% 62%, rgba(255,71,87,0.07) 0%, transparent 30%),
+              radial-gradient(ellipse at 35% 65%, rgba(255,229,0,0.06) 0%, transparent 28%),
+              radial-gradient(ellipse at 48% 10%, rgba(116,185,255,0.05) 0%, transparent 22%),
+              radial-gradient(ellipse at 85% 38%, rgba(191,95,255,0.05) 0%, transparent 22%),
+              linear-gradient(135deg, #04090f 0%, #070f1c 50%, #04090f 100%)`,
+            boxShadow: '0 0 40px rgba(0,245,255,0.06), inset 0 0 60px rgba(0,0,0,0.4)',
           }}
           onClick={handleMapClick}
         >
-          {/* Grid */}
-          <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          {/* Fine grid */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.07 }} xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00f5ff" strokeWidth="0.5"/>
+              <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#00f5ff" strokeWidth="0.5"/>
+              </pattern>
+              <pattern id="grid-lg" width="160" height="160" patternUnits="userSpaceOnUse">
+                <path d="M 160 0 L 0 0 0 160" fill="none" stroke="#00f5ff" strokeWidth="1"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
+            <rect width="100%" height="100%" fill="url(#grid-lg)" />
           </svg>
 
-          {/* Connection lines */}
+          {/* Atmospheric zone glow blobs */}
+          <div className="absolute pointer-events-none" style={{ left: '8%', top: '12%', width: 120, height: 120, background: 'radial-gradient(circle, rgba(46,213,115,0.09) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(20px)' }} />
+          <div className="absolute pointer-events-none" style={{ left: '53%', top: '6%', width: 100, height: 100, background: 'radial-gradient(circle, rgba(0,180,216,0.08) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(18px)' }} />
+          <div className="absolute pointer-events-none" style={{ left: '65%', top: '50%', width: 110, height: 110, background: 'radial-gradient(circle, rgba(255,71,87,0.08) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(18px)' }} />
+          <div className="absolute pointer-events-none" style={{ left: '23%', top: '55%', width: 100, height: 100, background: 'radial-gradient(circle, rgba(255,229,0,0.07) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(16px)' }} />
+
+          {/* Connection lines with glow */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            <line x1="15%" y1="20%" x2="60%" y2="15%" stroke="rgba(0,245,255,0.12)" strokeWidth="1" strokeDasharray="4,4" />
-            <line x1="15%" y1="20%" x2="30%" y2="62%" stroke="rgba(0,245,255,0.12)" strokeWidth="1" strokeDasharray="4,4" />
-            <line x1="60%" y1="15%" x2="72%" y2="58%" stroke="rgba(0,245,255,0.12)" strokeWidth="1" strokeDasharray="4,4" />
-            <line x1="45%" y1="8%" x2="60%" y2="15%" stroke="rgba(116,185,255,0.08)" strokeWidth="1" strokeDasharray="4,4" />
-            <line x1="72%" y1="58%" x2="82%" y2="35%" stroke="rgba(191,95,255,0.08)" strokeWidth="1" strokeDasharray="4,4" />
+            <defs>
+              <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            {[
+              { x1:'15%',y1:'20%',x2:'60%',y2:'15%', color:'rgba(0,245,255,0.2)' },
+              { x1:'15%',y1:'20%',x2:'30%',y2:'62%', color:'rgba(46,213,115,0.15)' },
+              { x1:'60%',y1:'15%',x2:'72%',y2:'58%', color:'rgba(0,245,255,0.15)' },
+              { x1:'45%',y1:'8%', x2:'60%',y2:'15%', color:'rgba(116,185,255,0.12)' },
+              { x1:'72%',y1:'58%',x2:'82%',y2:'35%', color:'rgba(191,95,255,0.12)' },
+            ].map((l,i) => (
+              <g key={i} filter="url(#glow)">
+                <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={l.color} strokeWidth="1.5" strokeDasharray="5,5" />
+              </g>
+            ))}
           </svg>
 
           {/* Target indicator */}
@@ -262,42 +294,67 @@ export default function WorldMap({ onStartBattle }: WorldMapProps) {
           {ZONES.map((zone) => {
             const isNear = nearZone?.id === zone.id;
             const isSelected = selectedZone?.id === zone.id;
+            const zoneColors: Record<string, string> = {
+              forest: '#2ed573', ocean: '#00b4d8', volcano: '#ff4757',
+              desert: '#ffa502', ice: '#74b9ff', city: '#bf5fff',
+            };
+            const zoneColor = zoneColors[zone.type] || '#00f5ff';
             return (
               <button
                 key={zone.id}
                 className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-                  zone.unlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
-                } ${isSelected ? 'scale-125' : 'hover:scale-110'}`}
+                  zone.unlocked ? 'cursor-pointer' : 'cursor-not-allowed'
+                } ${isSelected ? 'scale-130' : 'hover:scale-115'}`}
                 style={{ left: `${zone.x}%`, top: `${zone.y}%`, zIndex: 5 }}
                 onClick={e => { e.stopPropagation(); if (zone.unlocked) setSelectedZone(zone); }}
                 onMouseEnter={() => setHoveredZone(zone.id)}
                 onMouseLeave={() => setHoveredZone(null)}
               >
+                {/* Zone glow halo */}
+                {(isNear || isSelected) && (
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none"
+                    style={{
+                      transform: 'scale(1.8)',
+                      background: `radial-gradient(circle, ${zoneColor}25 0%, transparent 70%)`,
+                      filter: 'blur(8px)',
+                      animation: isNear ? 'zone-pulse 1.2s ease-in-out infinite' : 'none',
+                    }} />
+                )}
                 <div
                   className={`zone-${zone.type} relative w-14 h-14 rounded-2xl border-2 flex flex-col items-center justify-center transition-all duration-300`}
                   style={{
                     boxShadow: isNear
-                      ? `0 0 28px rgba(255,229,0,0.8), 0 0 8px rgba(255,229,0,0.4)`
-                      : isSelected ? `0 0 20px rgba(0,245,255,0.5)` : hoveredZone === zone.id ? `0 0 12px rgba(0,245,255,0.3)` : 'none',
-                    borderColor: isNear ? '#ffe500' : undefined,
-                    animation: isNear ? 'zone-pulse 1s ease-in-out infinite' : 'none',
+                      ? `0 0 24px ${zoneColor}cc, 0 0 48px ${zoneColor}44, inset 0 0 12px ${zoneColor}22`
+                      : isSelected
+                      ? `0 0 18px ${zoneColor}88, inset 0 0 8px ${zoneColor}15`
+                      : hoveredZone === zone.id
+                      ? `0 0 12px ${zoneColor}55`
+                      : `0 4px 16px rgba(0,0,0,0.4)`,
+                    borderColor: isNear ? '#ffe500' : isSelected ? zoneColor : undefined,
+                    opacity: zone.unlocked ? 1 : 0.4,
+                    backdropFilter: 'blur(8px)',
                   }}
                 >
-                  <span className="text-xl">{zone.emoji}</span>
+                  <span className="text-2xl" style={{ filter: `drop-shadow(0 0 6px ${zoneColor}88)` }}>{zone.emoji}</span>
                   {!zone.unlocked && (
-                    <div className="absolute inset-0 rounded-2xl bg-black/60 flex items-center justify-center">
-                      <Icon name="Lock" size={16} className="text-slate-400" />
+                    <div className="absolute inset-0 rounded-2xl bg-black/70 flex items-center justify-center">
+                      <Icon name="Lock" size={14} className="text-slate-400" />
                     </div>
                   )}
                 </div>
                 <div className="mt-1 text-center">
-                  <p className="text-xs font-rubik font-medium text-white/80 whitespace-nowrap leading-none">{zone.name.split(' ')[0]}</p>
-                  <p className="text-[10px] font-rubik text-slate-500 leading-none mt-0.5">Ур. {zone.level}</p>
+                  <p className="text-[11px] font-rubik font-semibold whitespace-nowrap leading-none" style={{ color: zone.unlocked ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)' }}>
+                    {zone.name.split(' ')[0]}
+                  </p>
+                  <p className="text-[9px] font-rubik leading-none mt-0.5" style={{ color: zone.unlocked ? zoneColor + 'aa' : '#475569' }}>
+                    Ур. {zone.level}
+                  </p>
                 </div>
                 {hoveredZone === zone.id && zone.unlocked && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 glass-card rounded-xl p-2 border border-cyan-500/30 z-20 animate-fade-in pointer-events-none">
-                    <p className="text-xs font-orbitron text-cyan-400 mb-1">{zone.name}</p>
-                    <p className="text-[10px] font-rubik text-slate-300">{zone.description}</p>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 glass-card-bright rounded-xl p-2.5 z-20 animate-fade-in pointer-events-none"
+                    style={{ border: `1px solid ${zoneColor}44`, boxShadow: `0 0 16px ${zoneColor}22` }}>
+                    <p className="text-xs font-orbitron font-bold mb-0.5" style={{ color: zoneColor }}>{zone.name}</p>
+                    <p className="text-[10px] font-rubik text-slate-400 leading-snug">{zone.description}</p>
                   </div>
                 )}
               </button>
@@ -333,119 +390,86 @@ export default function WorldMap({ onStartBattle }: WorldMapProps) {
             )}
           </div>
 
-          {/* D-pad (mobile / convenience) */}
-          <div className="absolute bottom-3 left-3 z-10" style={{ opacity: 0.85 }}>
-            <div className="grid grid-cols-3 gap-0.5" style={{ width: 84 }}>
+          {/* D-pad */}
+          <div className="absolute bottom-3 left-3 z-10">
+            <div className="grid grid-cols-3 gap-1" style={{ width: 90 }}>
               <div />
               <button onClick={() => dpadMove(0, -STEP, 'up')}
-                className="w-6 h-6 rounded glass-card border border-slate-600 flex items-center justify-center hover:bg-slate-700 active:scale-90 transition-all">
-                <Icon name="ChevronUp" size={12} className="text-slate-300" />
+                className="w-7 h-7 rounded-lg flex items-center justify-center active:scale-90 transition-all hover:scale-110"
+                style={{ background: 'rgba(0,245,255,0.12)', border: '1px solid rgba(0,245,255,0.25)', backdropFilter: 'blur(8px)' }}>
+                <Icon name="ChevronUp" size={13} className="text-cyan-400" />
               </button>
               <div />
               <button onClick={() => dpadMove(-STEP, 0, 'left')}
-                className="w-6 h-6 rounded glass-card border border-slate-600 flex items-center justify-center hover:bg-slate-700 active:scale-90 transition-all">
-                <Icon name="ChevronLeft" size={12} className="text-slate-300" />
+                className="w-7 h-7 rounded-lg flex items-center justify-center active:scale-90 transition-all hover:scale-110"
+                style={{ background: 'rgba(0,245,255,0.12)', border: '1px solid rgba(0,245,255,0.25)', backdropFilter: 'blur(8px)' }}>
+                <Icon name="ChevronLeft" size={13} className="text-cyan-400" />
               </button>
               <button onClick={() => dpadMove(0, STEP, 'down')}
-                className="w-6 h-6 rounded glass-card border border-slate-600 flex items-center justify-center hover:bg-slate-700 active:scale-90 transition-all">
-                <Icon name="ChevronDown" size={12} className="text-slate-300" />
+                className="w-7 h-7 rounded-lg flex items-center justify-center active:scale-90 transition-all hover:scale-110"
+                style={{ background: 'rgba(0,245,255,0.12)', border: '1px solid rgba(0,245,255,0.25)', backdropFilter: 'blur(8px)' }}>
+                <Icon name="ChevronDown" size={13} className="text-cyan-400" />
               </button>
               <button onClick={() => dpadMove(STEP, 0, 'right')}
-                className="w-6 h-6 rounded glass-card border border-slate-600 flex items-center justify-center hover:bg-slate-700 active:scale-90 transition-all">
-                <Icon name="ChevronRight" size={12} className="text-slate-300" />
+                className="w-7 h-7 rounded-lg flex items-center justify-center active:scale-90 transition-all hover:scale-110"
+                style={{ background: 'rgba(0,245,255,0.12)', border: '1px solid rgba(0,245,255,0.25)', backdropFilter: 'blur(8px)' }}>
+                <Icon name="ChevronRight" size={13} className="text-cyan-400" />
               </button>
+            </div>
+          </div>
+
+          {/* Coords HUD */}
+          <div className="absolute bottom-3 right-3 z-10">
+            <div className="chip chip-cyan" style={{ fontFamily: 'monospace', fontSize: 9 }}>
+              📍 {Math.round(pos.x)}, {Math.round(pos.y)}
             </div>
           </div>
         </div>
 
         {/* ═══ Side panel ═══ */}
-        <div className="w-64 flex flex-col gap-3">
+        <div className="w-60 flex flex-col gap-2.5">
           {nearZone ? (
-            <div className={`glass-card rounded-2xl p-4 border-2 zone-${nearZone.type} animate-scale-in flex flex-col gap-3`}
-              style={{ borderColor: '#ffe500', boxShadow: '0 0 20px rgba(255,229,0,0.3)' }}>
-              <div className="flex items-center gap-2">
-                <span className="text-3xl">{nearZone.emoji}</span>
-                <div>
-                  <h3 className="font-orbitron text-sm font-bold text-white">{nearZone.name}</h3>
-                  <p className="text-xs font-rubik text-yellow-400">Рядом с тобой!</p>
-                </div>
-              </div>
-              <p className="text-xs font-rubik text-slate-300 leading-relaxed">{nearZone.description}</p>
-              <div>
-                <p className="text-xs font-orbitron text-slate-400 mb-2 uppercase tracking-wider">Покемоны</p>
-                {nearZone.pokemon.map(p => (
-                  <div key={p} className="flex items-center gap-2 text-xs font-rubik text-slate-300 mb-0.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                    {p}
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => onStartBattle(nearZone)}
-                className="w-full py-2.5 rounded-xl font-orbitron text-sm font-bold text-black transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{ background: 'linear-gradient(135deg,#ffe500,#ffa502)', boxShadow: '0 0 16px rgba(255,229,0,0.5)' }}>
-                ⚔️ В БИТВУ!
-              </button>
-            </div>
+            <ZonePanel zone={nearZone} isNear onBattle={() => onStartBattle(nearZone)} />
           ) : selectedZone ? (
-            <div className={`glass-card rounded-2xl p-4 border-2 zone-${selectedZone.type} animate-scale-in flex flex-col gap-3`}>
-              <div className="flex items-center gap-2">
-                <span className="text-3xl">{selectedZone.emoji}</span>
-                <div>
-                  <h3 className="font-orbitron text-sm font-bold text-white">{selectedZone.name}</h3>
-                  <p className="text-xs font-rubik text-slate-400">Уровень {selectedZone.level}</p>
-                </div>
-              </div>
-              <p className="text-xs font-rubik text-slate-300 leading-relaxed">{selectedZone.description}</p>
-              <div>
-                <p className="text-xs font-orbitron text-slate-400 mb-2 uppercase tracking-wider">Покемоны зоны</p>
-                {selectedZone.pokemon.map(p => (
-                  <div key={p} className="flex items-center gap-2 text-xs font-rubik text-slate-300 mb-0.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                    {p}
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => onStartBattle(selectedZone)}
-                className="w-full py-2.5 rounded-xl font-orbitron text-sm font-bold text-black transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{ background: 'linear-gradient(135deg,#00f5ff,#00b4d8)', boxShadow: '0 0 16px rgba(0,245,255,0.4)' }}>
-                ИССЛЕДОВАТЬ
-              </button>
-            </div>
+            <ZonePanel zone={selectedZone} onBattle={() => onStartBattle(selectedZone)} />
           ) : (
-            <div className="glass-card rounded-2xl p-4 border border-slate-700 flex flex-col items-center justify-center gap-3 text-center flex-1">
-              <div className="text-4xl animate-float">🦖</div>
-              <p className="text-sm font-orbitron text-slate-400">Управление</p>
-              <div className="text-xs font-rubik text-slate-500 space-y-1">
-                <p>⬆⬇⬅➡ / WASD — ходьба</p>
-                <p>Клик на карту — переместиться</p>
-                <p>Пробел — войти в зону</p>
+            <div className="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-3 text-center flex-1"
+              style={{ border: '1px solid rgba(0,245,255,0.1)' }}>
+              <div className="text-4xl animate-float-slow" style={{ filter: 'drop-shadow(0 0 12px rgba(255,229,0,0.6))' }}>🦖</div>
+              <div>
+                <p className="text-sm font-orbitron font-bold text-white mb-1">Управление</p>
+                <div className="neon-divider mb-3" />
+                <div className="text-xs font-rubik space-y-1.5">
+                  {[['⬆⬇⬅➡', 'Клавиши WASD'], ['🖱️ Клик', 'Перейти в точку'], ['⎵ Пробел', 'Войти в зону']].map(([key, desc]) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className="chip chip-cyan text-[9px] flex-shrink-0">{key}</span>
+                      <span className="text-slate-400">{desc}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Coords + progress */}
-          <div className="glass-card rounded-2xl p-3 border border-slate-700">
-            <div className="flex justify-between mb-2">
-              <p className="text-xs font-orbitron text-slate-400">ПОЗИЦИЯ</p>
-              <span className="text-xs font-orbitron text-cyan-400">{Math.round(pos.x)},{Math.round(pos.y)}</span>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-rubik text-slate-300">Зоны открыты</span>
-                <span className="text-xs font-orbitron text-cyan-400">4/6</span>
-              </div>
-              <div className="w-full bg-slate-800 rounded-full h-1.5">
-                <div className="h-1.5 rounded-full" style={{ width: '66%', background: 'linear-gradient(90deg,#00f5ff,#bf5fff)' }} />
-              </div>
-              <div className="flex justify-between items-center mt-0.5">
-                <span className="text-xs font-rubik text-slate-300">Покемоны</span>
-                <span className="text-xs font-orbitron text-purple-400">3/18</span>
-              </div>
-              <div className="w-full bg-slate-800 rounded-full h-1.5">
-                <div className="h-1.5 rounded-full" style={{ width: '17%', background: 'linear-gradient(90deg,#bf5fff,#7b2ff7)' }} />
-              </div>
+          {/* Progress */}
+          <div className="glass-card rounded-2xl p-3.5" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+            <p className="text-[9px] font-orbitron text-slate-500 uppercase tracking-widest mb-2.5">Прогресс</p>
+            <div className="flex flex-col gap-2">
+              {[
+                { label: 'Зоны открыты', val: 4, max: 6, color: 'linear-gradient(90deg,#00f5ff,#bf5fff)', textColor: '#00f5ff' },
+                { label: 'Покемоны', val: 3, max: 18, color: 'linear-gradient(90deg,#bf5fff,#7b2ff7)', textColor: '#bf5fff' },
+              ].map(({ label, val, max, color, textColor }) => (
+                <div key={label}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] font-rubik text-slate-400">{label}</span>
+                    <span className="text-[10px] font-orbitron font-bold" style={{ color: textColor }}>{val}/{max}</span>
+                  </div>
+                  <div className="w-full rounded-full h-1.5 overflow-hidden progress-shine"
+                    style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="h-1.5 rounded-full" style={{ width: `${(val/max)*100}%`, background: color }} />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -453,18 +477,85 @@ export default function WorldMap({ onStartBattle }: WorldMapProps) {
 
       <style>{`
         @keyframes zone-pulse {
-          0%,100% { box-shadow: 0 0 16px rgba(255,229,0,0.6); }
-          50%      { box-shadow: 0 0 32px rgba(255,229,0,1); }
+          0%,100% { opacity:0.7; }
+          50%      { opacity:1; }
         }
         @keyframes float-label {
           0%,100% { transform: translateX(-50%) translateY(0); }
-          50%      { transform: translateX(-50%) translateY(-3px); }
+          50%      { transform: translateX(-50%) translateY(-4px); }
         }
         @keyframes target-pulse {
           0%   { transform: translate(-50%,-50%) scale(0.5); opacity:0.9; }
-          100% { transform: translate(-50%,-50%) scale(2); opacity:0; }
+          100% { transform: translate(-50%,-50%) scale(2.5); opacity:0; }
         }
       `}</style>
+    </div>
+  );
+}
+
+/* Zone side panel */
+function ZonePanel({ zone, isNear, onBattle }: { zone: typeof ZONES[0]; isNear?: boolean; onBattle: () => void }) {
+  const zoneColors: Record<string, string> = {
+    forest: '#2ed573', ocean: '#00b4d8', volcano: '#ff4757',
+    desert: '#ffa502', ice: '#74b9ff', city: '#bf5fff',
+  };
+  const color = zoneColors[zone.type] || '#00f5ff';
+  return (
+    <div
+      className="glass-card-bright rounded-2xl p-4 flex flex-col gap-3 animate-scale-in"
+      style={{
+        border: `1px solid ${color}40`,
+        boxShadow: `0 0 24px ${color}18, inset 0 0 20px ${color}06`,
+        flex: isNear ? undefined : 1,
+      }}
+    >
+      {/* Zone header */}
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+          style={{ background: `${color}18`, border: `1px solid ${color}40`, boxShadow: `0 0 12px ${color}30` }}>
+          {zone.emoji}
+        </div>
+        <div>
+          <h3 className="font-orbitron text-sm font-black text-white leading-none mb-1">{zone.name}</h3>
+          <div className="flex items-center gap-1.5">
+            {isNear && <span className="chip chip-yellow" style={{ fontSize: 9 }}>📍 Рядом!</span>}
+            <span className="chip" style={{ fontSize: 9, color, borderColor: `${color}50`, background: `${color}10` }}>
+              УР. {zone.level}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="neon-divider" style={{ background: `linear-gradient(90deg, transparent, ${color}60, transparent)` }} />
+
+      <p className="text-[11px] font-rubik leading-relaxed" style={{ color: 'rgba(148,163,184,0.9)' }}>{zone.description}</p>
+
+      {/* Pokemon list */}
+      <div>
+        <p className="text-[9px] font-orbitron uppercase tracking-widest text-slate-500 mb-2">Покемоны зоны</p>
+        <div className="flex flex-col gap-1">
+          {zone.pokemon.map(p => (
+            <div key={p} className="flex items-center gap-2 text-[11px] font-rubik py-0.5">
+              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color, boxShadow: `0 0 4px ${color}` }} />
+              <span style={{ color: 'rgba(203,213,225,0.85)' }}>{p}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={onBattle}
+        className="w-full py-2.5 rounded-xl font-orbitron text-sm font-bold transition-all duration-200 hover:scale-105 active:scale-95"
+        style={{
+          background: isNear
+            ? 'linear-gradient(135deg,#ffe500,#ffa502)'
+            : `linear-gradient(135deg, ${color}, ${color}aa)`,
+          color: isNear ? '#000' : '#fff',
+          boxShadow: `0 0 20px ${isNear ? 'rgba(255,229,0,0.5)' : color + '55'}`,
+        }}
+      >
+        {isNear ? '⚔️ В БИТВУ!' : 'ИССЛЕДОВАТЬ'}
+      </button>
     </div>
   );
 }
